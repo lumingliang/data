@@ -1,0 +1,78 @@
+1. 接口对接
+2. 接口字段修改
+
+3. 
+kafka日志对接
+整理部署java环境、sql等
+和前端联调进一步测试接口、权限等
+禁用/启用分类
+查询分类
+搜索分类
+首页接口
+领导安排的其他事项
+
+
+
+	location /app-market { 
+		rewrite https://app1.company.com/app1/; 
+    } 
+	
+	location ~* /app-market/{
+        rewrite  ^/app-market/(.*)$ /$1 break;
+        proxy_pass http://127.0.0.1:9090;
+    }
+	
+SHA_SECRET_KEY=RLQ66CH5HJA7X2Y87H59ZMSAFASD9TGT
+#ip地址白名单， ; 分割
+IP_WHITELIST=
+#发送短信的时候是否同时发送邮件
+SMS_WITH_EMAIl=true 或者不设置
+#邮件发送配置
+MAIL_HOST=
+MAIL_PORT=25
+MAIL_USERNAME=
+MAIL_PASSWORD=
+MAIL_ENCRYPTION=null
+MAIL_FROM_ADDRESS=
+MAIL_FROM_NAME=
+
+# 中石油app用初始密码即可登录配置
+OPERATOR_ID=
+OPERATOR_PWD=
+ID_TYPE=
+IBC_PWD=
+
+{"url":"https://192.168.135.72:8443:8443/apis/user/delete","key":"RLQ66CH5HJA7X2Y87H59ZMSAFASD9TGT","op":"push_msg"}
+
+AQACAGRmMDkzNDkyAAAD6AAAAAATopPrmZeUmaneJjbOHaOcTyB6xWh/G7MypdRD" [1]=> string(64) "AQACADk3YWVlMjFhAAAAZAAAAABge8d4rQtxDyUm/3b9Wqn13vE/XoS+YWRfWhgC
+
+
+
+AQACAGQxMGUwNWQ3AAAAZAAAAAB3/bAUzfsuhbYDwD9AN7eBstsHXDvZEeWgnAYw;AQACAGRmOWM4NjFjAAAABQAAAAAtwPjphWQzlf4zucNLt7UMb+k56OfnObuYAKI9
+
+olymvoip_2013  rBoLKPkoUIX6BQPU
+
+
+                location ~* /app-market/{
+                        rewrite  ^/app-market/(.*)$ /$1 break;
+                        proxy_pass http://127.0.0.1:9090;
+                }
+签名数据：后台配置的对外服务地址对应的端口8443 和app使用的端口443不一致，因此签名数据验签失败，导致登录不了，现在可以了
+
+我看看，这个你们没有配置过吗，这个资讯流我之前没有弄过
+
+第一次是核心文件缺失（该文件是核心文件旧版应该也有的），第二次是配置项缺失
+
+https://124.70.197.81/app_shop/api/v1.0/login/
+
+https://124.70.155.112:8443 https://124.70.197.81/app_shop/api/v1.0/login/
+
+
+调试日志
+/opt/lnmpp/htdocs/appshop/storage/logs/debug.log
+tail -f storage/logs/lumen.log
+查看启动脚本，来看php加载的是哪个配置文件,从而得出实际版本
+
+西安鲲鹏
+124.70.155.112
+olym@123.com

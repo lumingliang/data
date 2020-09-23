@@ -1,0 +1,33 @@
+##### linux 基础监控命令
+
+文件大小
+1. du -s /* |awk '{print $1}'|sort -nr 
+2. du  --max-depth=1 / |sort -nr |head -n 10
+磁盘io
+ yum install sysstat
+ iostat -x 1 10
+看 rrqm/s   wrqm/s
+ %util 接近 100%，说明产生的I/O请求太多，
+ 
+ monitor_io_stats.sh
+
+　　#!/bin/sh
+
+　　/etc/init.d/syslog stop
+
+　　echo 1 > /proc/sys/vm/block_dump
+
+　　sleep 60
+
+　　dmesg | awk '/(READ|WRITE|dirtied)/ {process[$1]++} END {for (x in process) \
+
+　　print process[x],x}' |sort -nr |awk '{print $2 " " $1}' | \
+
+　　head -n 10
+
+　　echo 0 > /proc/sys/vm/block_dump
+
+　　/etc/init.d/syslog start
+
+　　或者用iodump.pl脚本
+ 

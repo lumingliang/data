@@ -1,0 +1,39 @@
+﻿set history=100000
+set scrolloff=7
+"vmap ls <Esc>
+imap kk <Esc>
+nmap e 10<C-e>
+nmap t 10<C-y>
+nmap <up> 3<C-y>
+nmap <down> 3<C-e>
+nmap <leader>y "*yy
+vmap <leader>y "*yy
+vmap <C-c> "+y
+vmap <C-v> "+p
+nmap <leader>p "*p
+
+" nmap <F5> :source ~/.vimrc<CR>
+"Smart way to move between windows 分屏窗口移动
+map <C-j> <C-W>j
+map <C-k> <C-W>k
+map <C-h> <C-W>h
+map <C-l> <C-W>l
+map ; :
+noremap H ^
+noremap L $
+noremap r 3w
+noremap f 3b
+
+cnoremap <C-j> <t_kd>
+cnoremap <C-k> <t_ku>
+cnoremap <C-a> <Home>
+cnoremap <C-e> <End>
+map \r :action ReformatCode<CR>
+map U :action $Redo<CR>
+"map <C-c> <Nop>
+"map <C-v> <Nop>
+map <F1> <Nop>
+map <C-c> :action $Copy<CR>
+map <C-v> :action $Paste<CR>
+map <F4> :action CodeCompletion<CR>
+set clipboard+=unnamed

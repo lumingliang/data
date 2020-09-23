@@ -1,0 +1,321 @@
+package com.xiao.permission_system;
+
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.service.additional.query.impl.LambdaQueryChainWrapper;
+import com.mysql.cj.util.StringUtils;
+import com.xiao.permission_system.entity.UserInfo;
+import com.xiao.permission_system.mapper.UserInfoMapper;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;;
+
+@RunWith(SpringRunner.class)
+@SpringBootTest
+public class PermissionSystemApplicationTests {
+
+    @Test
+    public void contextLoads() {
+    }
+
+    @Autowired
+    private UserInfoMapper userInfoMapper;
+
+    /**
+     * 普通查询
+     */
+    @Test
+    public void selectById() {
+        UserInfo userInfo = userInfoMapper.selectById(123);
+        System.out.println(userInfo);
+    }
+
+    /**
+     * 批量查询
+     */
+    @Test
+    public void selectByIds() {
+        List<Long> ids = Arrays.asList(123L,124L,125L);
+        List<UserInfo> userInfo = userInfoMapper.selectBatchIds(ids);
+        System.out.println(userInfo);
+    }
+
+    /**
+     * 名字包含娟并且年龄小雨30
+     */
+    @Test
+    public void selectByWrapper() {
+        QueryWrapper<UserInfo> queryWrapper = new QueryWrapper<UserInfo>();
+        queryWrapper.like("username","娟").lt("age",30);
+        List<UserInfo> userInfoList = userInfoMapper.selectList(queryWrapper);
+        userInfoList.forEach(System.out::println);
+    }
+    /**
+     * 名字包含娟并且年龄大雨等于20且小于等于40并且email不为空
+     */
+    @Test
+    public void selectByWrapper2() {
+        QueryWrapper<UserInfo> queryWrapper = new QueryWrapper<UserInfo>();
+        queryWrapper.like("username","娟").between("age",20,30).isNotNull("email");
+        List<UserInfo> userInfoList = userInfoMapper.selectList(queryWrapper);
+        userInfoList.forEach(System.out::println);
+    }
+
+    /**
+     * 名字姓肖或者年量大雨等于20，按照年龄降序排列，年龄相同按照id生序排列
+     */
+    @Test
+    public void selectByWrapper3() {
+        QueryWrapper<UserInfo> queryWrapper = new QueryWrapper<UserInfo>();
+        queryWrapper.likeRight("username","肖")
+                .or().ge("age",20).orderByDesc("age").orderByAsc("id");
+        List<UserInfo> userInfoList = userInfoMapper.selectList(queryWrapper);
+        userInfoList.forEach(System.out::println);
+    }
+
+    /**
+     * 创建日期为2019年10月2日并且直属上级名字为王姓
+     */
+    @Test
+    public void selectByWrapper4() {
+        QueryWrapper<UserInfo> queryWrapper = new QueryWrapper<UserInfo>();
+        queryWrapper.apply("date_format(create_time,'%Y-%m-%d')={0}","2019-10-07")
+                .inSql("parent_id","select id from user where username like '王%'");
+        List<UserInfo> userInfoList = userInfoMapper.selectList(queryWrapper);
+        userInfoList.forEach(System.out::println);
+    }
+
+    /**
+     * 名字为王姓并且（年龄小于40或邮箱不为空）
+     */
+    @Test
+    public void selectByWrapper5() {
+        QueryWrapper<UserInfo> queryWrapper = new QueryWrapper<UserInfo>();
+        queryWrapper.likeRight("username","王")
+                .and(wq->wq.lt("age",40))
+                .or().isNotNull("email");
+        List<UserInfo> userInfoList = userInfoMapper.selectList(queryWrapper);
+        userInfoList.forEach(System.out::println);
+    }
+    /**
+     * 名字为王姓并且（年龄小于40并且大与20或邮箱不为空）
+     */
+    @Test
+    public void selectByWrapper6() {
+        QueryWrapper<UserInfo> queryWrapper = new QueryWrapper<UserInfo>();
+        queryWrapper.likeRight("username","王")
+                .and(wq->wq.lt("age",40).gt("age",20))
+                .or().isNotNull("email");
+        List<UserInfo> userInfoList = userInfoMapper.selectList(queryWrapper);
+        userInfoList.forEach(System.out::println);
+    }
+    /**
+     * （年龄小于40并且大与20或邮箱不为空）名字为王姓并且
+     */
+    @Test
+    public void selectByWrapper7() {
+        QueryWrapper<UserInfo> queryWrapper = new QueryWrapper<UserInfo>();
+        queryWrapper.nested(wq->wq.lt("age",40))
+                .or().isNotNull("email")
+                .likeRight("username","王");
+        List<UserInfo> userInfoList = userInfoMapper.selectList(queryWrapper);
+        userInfoList.forEach(System.out::println);
+    }
+    /**
+     * 年龄23，30，40
+     */
+    @Test
+    public void selectByWrapper8() {
+        QueryWrapper<UserInfo> queryWrapper = new QueryWrapper<UserInfo>();
+        queryWrapper.in("age",Arrays.asList(20,30,40));
+        List<UserInfo> userInfoList = userInfoMapper.selectList(queryWrapper);
+        userInfoList.forEach(System.out::println);
+    }
+    /**
+     * 只返回满足条件的其中一条语句即可
+     */
+    @Test
+    public void selectByWrapper9() {
+        QueryWrapper<UserInfo> queryWrapper = new QueryWrapper<UserInfo>();
+        queryWrapper.in("age",Arrays.asList(20,30,40)).last("limit 1");
+        List<UserInfo> userInfoList = userInfoMapper.selectList(queryWrapper);
+        userInfoList.forEach(System.out::println);
+    }
+
+    /**
+     * 名字中包含雨并且年龄小于40(只取id,username)
+     */
+    @Test
+    public void selectByWrapper10() {
+        QueryWrapper<UserInfo> queryWrapper = new QueryWrapper<UserInfo>();
+        queryWrapper.select("id","username").like("username","雨").lt("age",40);
+        List<UserInfo> userInfoList = userInfoMapper.selectList(queryWrapper);
+        userInfoList.forEach(System.out::println);
+    }
+
+    /**
+     * 名字中包含雨并且年龄小于40(不取create_time,parent_id两个字段,即不列出全部字段)
+     */
+    @Test
+    public void selectByWrapper11() {
+        QueryWrapper<UserInfo> queryWrapper = new QueryWrapper<UserInfo>();
+        queryWrapper.like("username","雨").lt("age",40)
+                    .select(UserInfo.class,info->!info.getColumn().equals("create_time")&&
+                            !info.getColumn().equals("parent_id"));
+        List<UserInfo> userInfoList = userInfoMapper.selectList(queryWrapper);
+        userInfoList.forEach(System.out::println);
+    }
+
+    /**
+     * 姓名和邮箱不为空
+     */
+    public void testCondition() {
+        String username = "王";
+        String email = "";
+        condition(username,email);
+    }
+
+    private void condition(String username,String email){
+        QueryWrapper<UserInfo> queryWrapper = new QueryWrapper<UserInfo>();
+        queryWrapper.like(StringUtils.isNullOrEmpty(username),"name",username)
+                    .like(StringUtils.isNullOrEmpty(email),"email",email);
+        List<UserInfo> userInfoList = userInfoMapper.selectList(queryWrapper);
+        userInfoList.forEach(System.out::println);
+    }
+
+    /**
+     * 实体作为条件构造器方法的参数
+     */
+    @Test
+    public void selectByWrapperEntity() {
+        UserInfo whereUser = new UserInfo();
+        whereUser.setUsername("xiaojuan");
+        whereUser.setAge(22);
+        QueryWrapper<UserInfo> queryWrapper = new QueryWrapper<UserInfo>(whereUser);
+        List<UserInfo> userInfoList = userInfoMapper.selectList(queryWrapper);
+        userInfoList.forEach(System.out::println);
+    }
+    /**
+     * AllEq用法
+     */
+    @Test
+    public void selectByWrapperAllEq() {
+        QueryWrapper<UserInfo> queryWrapper = new QueryWrapper<UserInfo>();
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("nuserame","xiaojuan");
+        params.put("age",null);
+        queryWrapper.allEq(params);
+        List<UserInfo> userInfoList = userInfoMapper.selectList(queryWrapper);
+        userInfoList.forEach(System.out::println);
+    }
+
+    /**
+     * AllEq用法(排除不是条件的字段)
+     */
+    @Test
+    public void selectByWrapperAllEq2() {
+        QueryWrapper<UserInfo> queryWrapper = new QueryWrapper<UserInfo>();
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("nuserame","xiaojuan");
+        params.put("age",null);
+        queryWrapper.allEq((k,v)->!k.equals("name"),params);
+        List<UserInfo> userInfoList = userInfoMapper.selectList(queryWrapper);
+        userInfoList.forEach(System.out::println);
+    }
+
+    /**
+     * selectMaps
+     */
+    @Test
+    public void selectByWrapperMaps() {
+        QueryWrapper<UserInfo> queryWrapper = new QueryWrapper<UserInfo>();
+        queryWrapper.like("name","肖").lt("age",40);
+        List<Map<String,Object>> userInfoList = userInfoMapper.selectMaps(queryWrapper);
+        userInfoList.forEach(System.out::println);
+    }
+
+    /**
+     * 按照直属上级分组，查询每组的平均年龄，最大年龄，最小年龄。并且只取年龄总和小于500的组
+     */
+    @Test
+    public void selectByWrapperMaps2() {
+        QueryWrapper<UserInfo> queryWrapper = new QueryWrapper<UserInfo>();
+        queryWrapper.select("avg(age) avg_age","min(min) min_age","max(age) max_age")
+                .groupBy("parent_id").having("sum(age)<{0}",500);
+        List<Map<String,Object>> userInfoList = userInfoMapper.selectMaps(queryWrapper);
+        userInfoList.forEach(System.out::println);
+    }
+
+    /**
+     * selectObjs
+     */
+    @Test
+    public void selectByWrapperObjs() {
+        QueryWrapper<UserInfo> queryWrapper = new QueryWrapper<UserInfo>();
+        queryWrapper.select("id","name").like("name","肖").lt("age",40);
+        List<Object> userInfoList = userInfoMapper.selectObjs(queryWrapper);
+        userInfoList.forEach(System.out::println);
+    }
+
+    /**
+     * selectCount
+     */
+    @Test
+    public void selectByWrapperCount() {
+        QueryWrapper<UserInfo> queryWrapper = new QueryWrapper<UserInfo>();
+        queryWrapper.like("name","肖").lt("age",40);
+        Integer count = userInfoMapper.selectCount(queryWrapper);
+        System.out.println(count);
+    }
+
+    /**
+     * selectOne
+     */
+    @Test
+    public void selectByWrapperSelectOne() {
+        QueryWrapper<UserInfo> queryWrapper = new QueryWrapper<UserInfo>();
+        queryWrapper.like("name","肖").lt("age",40);
+        UserInfo user = userInfoMapper.selectOne(queryWrapper);
+        System.out.println(user);
+    }
+
+    /**
+     * 使用Lambda
+     */
+    @Test
+    public void selectLambda() {
+       // LambdaQueryWrapper<UserInfo> lambda = new QueryWrapper<UserInfo>().lambda();
+        LambdaQueryWrapper<UserInfo> lambda = new LambdaQueryWrapper<UserInfo>();
+        lambda.like(UserInfo::getUsername,"娟").lt(UserInfo::getAge,40);
+        List<UserInfo> userInfoList = userInfoMapper.selectList(lambda);
+        userInfoList.forEach(System.out::println);
+    }
+
+    /**
+     * 使用Lambda,名字为王姓（年龄小于40或邮箱不为空）
+     */
+    @Test
+    public void selectLambd2() {
+        LambdaQueryWrapper<UserInfo> lambda = new LambdaQueryWrapper<UserInfo>();
+        lambda.like(UserInfo::getUsername,"娟")
+                .and(lqw->lqw.lt(UserInfo::getAge,40).or().isNotNull(UserInfo::getEmail));
+        List<UserInfo> userInfoList = userInfoMapper.selectList(lambda);
+        userInfoList.forEach(System.out::println);
+    }
+
+    /**
+     * 使用Lambda链式
+     */
+    @Test
+    public void selectLambd3() {
+        List<UserInfo> userInfoList = new LambdaQueryChainWrapper<UserInfo>(userInfoMapper)
+                .like(UserInfo::getUsername,"娟").ge(UserInfo::getAge,20).list();
+        userInfoList.forEach(System.out::println);
+    }
